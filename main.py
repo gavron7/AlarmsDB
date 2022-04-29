@@ -1,13 +1,13 @@
 import time
 
-class alarms:
+class alarm:
 
     piority = [
-        'krótki0',
-        'krotki1',
-        'krotki2',
-        'krotki3',
-        'krotki4',
+        {'ilosc_piskow_na_sekunde': 1, 'powtorzenia': 3, 'przerwa': 10},
+        {'ilosc_piskow_na_sekunde': 1, 'powtorzenia': 5, 'przerwa': 10},
+        {'ilosc_piskow_na_sekunde': 2, 'powtorzenia': 5, 'przerwa': 8},
+        {'ilosc_piskow_na_sekunde': 2, 'powtorzenia': 8, 'przerwa': 8},
+        {'ilosc_piskow_na_sekunde': 10, 'powtorzenia': 10, 'przerwa': 5},
     ]
 
     def __init__(self):
@@ -38,23 +38,50 @@ class alarms:
         except:
             return False
 
+    def _make_alarm(self, alarm):
+        import math
+        out = ""
+        f = alarm['ilosc_piskow_na_sekunde']
+        print("***")
+        xmax = math.pi * 2
+        xmax = int(round(xmax))
+        print('xmax', xmax)
+        for i in range(xmax * 1):
+            wynik =  10 * math.sin(i * f)
+            if wynik > 0:
+                wynik = 1
+            elif wynik <= 0:
+                wynik = 0
+            print(wynik, end="")
+        print()
+        print("!!!")
+        return out
+
     def run(self):
         if not self.top() or time.time() - self.oldtime < 0.2:
             # czy alarm jest włączony oraz czy upłynął czas od ostatniego wywołania
             return
+        a = self._make_alarm(self.top())
+        print(a)
+
+
+
+        import sys
+        sys.exit()
+        [self.position]
+
         self.oldtime = time.time()
-        a = self.top()[self.position]
         self.position += 1
         if self.position >= len(self.top()):
             self.position = 0
         return a
 
-a = alarms()
+a = alarm()
 a.add(1)
 a.add(3)
 a.add(2)
 a.remove(3)
-a.remove(1)
+#a.remove(1)
 a.remove(2)
 print(a.list)
 print(a.top())
