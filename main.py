@@ -42,19 +42,15 @@ class alarm:
         import math
         out = ""
         f = alarm['ilosc_piskow_na_sekunde']
-        print("***")
         xmax = math.pi * 2
         xmax = int(round(xmax))
-        print('xmax', xmax)
-        for i in range(xmax * 1):
-            wynik =  10 * math.sin(i * f)
+        for i in range(xmax ):
+            wynik =  math.sin(i)
             if wynik > 0:
                 wynik = 1
             elif wynik <= 0:
                 wynik = 0
-            print(wynik, end="")
-        print()
-        print("!!!")
+            out += str(wynik)
         return out
 
     def run(self):
@@ -62,7 +58,7 @@ class alarm:
             # czy alarm jest włączony oraz czy upłynął czas od ostatniego wywołania
             return
         a = self._make_alarm(self.top())
-        print(a)
+        print(len(a), a)
 
 
 
