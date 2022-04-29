@@ -40,6 +40,7 @@ class alarms:
 
     def run(self):
         if not self.top() or time.time() - self.oldtime < 0.2:
+            # czy alarm jest włączony oraz czy upłynął czas od ostatniego wywołania
             return
         self.oldtime = time.time()
         a = self.top()[self.position]
@@ -54,11 +55,16 @@ a.add(3)
 a.add(2)
 a.remove(3)
 a.remove(1)
-# a.remove(2)
+a.remove(2)
 print(a.list)
 print(a.top())
 s=time.time()
-while time.time() - s < 10:
+while time.time() - s < 5:
     x = a.run()
     if x:
         print(x)
+    if round(time.time() - s, 5) * 100000 == 250000:
+        a.add(3)
+
+print(a.list)
+print(len(a.list))
