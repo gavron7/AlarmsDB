@@ -1,11 +1,12 @@
 import math
 import time
+import sys
 
 class alarm:
 
     piority = [
         {'ilosc_piskow_na_sekunde': 1, 'powtorzenia': 3, 'przerwa': 10},
-        {'ilosc_piskow_na_sekunde': 10, 'powtorzenia': 10, 'przerwa': 5},
+        {'ilosc_piskow_na_sekunde': 1, 'powtorzenia': 10, 'przerwa': 5},
     ]
 
     def __init__(self):
@@ -42,17 +43,16 @@ class alarm:
     def _make_alarm(self, alarm):
         out = ""
         f = alarm['ilosc_piskow_na_sekunde']
-        xmax = math.pi * 2
-        xmax = int(round(xmax))
-        for i in range(0, xmax * 10):
+        precyzja = 10
+        for i in range(int(round(2 * math.pi)) * precyzja):
             # generowanie sygnału sinusoidalnego
-            wynik =  math.sin(i * f)
+            wynik =  math.sin(i * f / precyzja)
             if wynik > 0:
                 wynik = 1
             elif wynik <= 0:
                 wynik = 0
             out += str(wynik)
-        return out + "x"
+        return out
 
     def run(self):
         if not self.top() or time.time() - self.oldtime < 1/(2 * math.pi):
@@ -63,9 +63,10 @@ class alarm:
         return a
 
 a = alarm()
-a.add(0)
+a.add(1)
 s=time.time()
 while time.time() - s < 3:
     x = a.run()
-    print(x)
+    print(a.top()['ilosc_piskow_na_sekunde'], x, len(x))
 
+print(1/len(x))
