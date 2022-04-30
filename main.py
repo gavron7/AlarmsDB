@@ -2,7 +2,7 @@ import math
 import time
 import sys
 
-class alarm:
+class alarm_generator:
 
     piority = [
         {'ilosc_piskow_na_sekunde': 1, 'przerwa_impuls': 0, 'powtorzenia': 1, 'przerwa': 1},
@@ -13,8 +13,9 @@ class alarm:
     def __init__(self):
         self.list = []
         self.oldtime = 0
-        self.position = 0
         self.old_a = 0
+        self.oldlist = []
+        self.changed = False
 
     def add(self, pio):
         if pio > len(self.piority):
@@ -27,8 +28,14 @@ class alarm:
     def find_top_alarm(self):
         l = self.list
         self.list.sort(reverse=True)
-        if l != self.list:
-            self.position = 0
+        if l != self.oldlist:
+            self.oldlist = l
+            self.changed = True
+
+    def is_changed(self):
+        a = self.changed
+        self.changed = False
+        return a
 
     def remove(self, pio):
         try:
@@ -89,16 +96,32 @@ class alarm:
         return a
 
     def run(self):
-        if not self.top() or time.time() - self.oldtime < 1 / self.bitrate:
+        if time.time() - self.oldtime < 1 / self.bitrate:
             # czy alarm jest włączony oraz czy upłynął czas od ostatniego wywołania
+            return self.old_a
+        self.oldtime = time.time()
+        if not self.top():
+            self.old_a = "w"
             return self.old_a
         a = self.generate()
         return a
 
-a = alarm()
-a.add(0)
-s=time.time()
-# while time.time() - s < 3:
-x = a.run()
-print(x)
-print(len(x))
+lista = alarm_generator()
+lista.add(0)
+s = time.time()
+while time.time() - s < 10:
+    if round(time.time() - s, 2) == 1.0:
+        lista.add(1)
+        print('dodano 1')
+    if round(time.time() - s, 2) == 3.0:
+        lista.remove(1)
+        print("usunieto 1")
+    if round(time.time() - s, 2) == 5.0:
+        lista.remove(0)
+        print("usunieto 0")
+
+    x = lista.run()
+    if lista.is_changed():
+        print('zmiana')
+        # print(len(x), lista.is_changed())
+    time.sleep(0.01)
