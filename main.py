@@ -1,3 +1,4 @@
+import math
 import time
 
 class alarm:
@@ -39,7 +40,6 @@ class alarm:
             return False
 
     def _make_alarm(self, alarm):
-        import math
         out = ""
         f = alarm['ilosc_piskow_na_sekunde']
         xmax = math.pi * 2
@@ -54,40 +54,19 @@ class alarm:
         return out
 
     def run(self):
-        if not self.top() or time.time() - self.oldtime < 0.2:
+        if not self.top() or time.time() - self.oldtime < 2 * math.pi:
             # czy alarm jest włączony oraz czy upłynął czas od ostatniego wywołania
             return
         a = self._make_alarm(self.top())
-        print(len(a), a)
-
-
-
-        import sys
-        sys.exit()
-        [self.position]
-
-        self.oldtime = time.time()
-        self.position += 1
-        if self.position >= len(self.top()):
-            self.position = 0
         return a
 
 a = alarm()
-a.add(1)
-a.add(3)
-a.add(2)
-a.remove(3)
-#a.remove(1)
-a.remove(2)
+a.add(4)
 print(a.list)
 print(a.top())
 s=time.time()
-while time.time() - s < 5:
+while time.time() - s < 3:
     x = a.run()
     if x:
-        print(x)
-    if round(time.time() - s, 5) * 100000 == 250000:
-        a.add(3)
+        print(len(x), x)
 
-print(a.list)
-print(len(a.list))
