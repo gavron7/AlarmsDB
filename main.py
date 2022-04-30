@@ -8,11 +8,10 @@ class alarm_generator:
         {'ilosc_piskow_na_sekunde': 1, 'przerwa_impuls': 0, 'powtorzenia': 1, 'przerwa': 1},
         {'ilosc_piskow_na_sekunde': 5, 'przerwa_impuls': 2, 'powtorzenia': 3, 'przerwa': 10},
     ]
-    bitrate = 10 #Hz
+    bitrate = 10 # Hz
 
     def __init__(self):
         self.list = []
-        self.oldtime = 0
         self.old_a = 0
         self.oldlist = []
         self.changed = False
@@ -77,10 +76,11 @@ class alarm_generator:
         return "0" * self.bitrate
 
     def gen_wait(self):
+        # generowanie sekundy pauzy
         return "w" * self.bitrate
 
     def _make_alarm(self, alarm):
-        _sek_sin = self._make_cut(self._gen_sinus(alarm, self.bitrate), self.bitrate)
+        _sek_sin = self._make_cut(self._gen_sinus(alarm))
         _sek_sil = self._gen_silent() * alarm['przerwa_impuls']
         _output = ""
         for i in range(alarm['powtorzenia'] + 1):
@@ -90,7 +90,7 @@ class alarm_generator:
         _output += self.gen_wait() * alarm['przerwa']
         return _output
 
-    def _make_cut(self, alarm, precyzja=10):
+    def _make_cut(self, alarm):
         # ucinanie wyniku do x bitów
         __tmp = ""
         for i in range(1, len(alarm), int(len(alarm) / self.bitrate)):
@@ -103,10 +103,6 @@ class alarm_generator:
         return a
 
     def run(self):
-        if time.time() - self.oldtime < 1 / self.bitrate:
-            # czy alarm jest włączony oraz czy upłynął czas od ostatniego wywołania
-            return self.old_a
-        self.oldtime = time.time()
         if not self.top():
             self.old_a = "w"
             return self.old_a
