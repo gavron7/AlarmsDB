@@ -71,7 +71,7 @@ class alarm:
         _output = ""
         for i in range(alarm['powtorzenia'] + 1):
             _output += _sek_sin + _sek_sil
-        if alarm['powtorzenia'] > 0:
+        if alarm['powtorzenia'] > 0 and alarm['przerwa_impuls'] > 0:
             _output = _output[:-len(_sek_sil)]
         _output += self.gen_wait() * alarm['przerwa']
         return _output
