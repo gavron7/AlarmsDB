@@ -5,9 +5,6 @@ class alarm:
 
     piority = [
         {'ilosc_piskow_na_sekunde': 1, 'powtorzenia': 3, 'przerwa': 10},
-        {'ilosc_piskow_na_sekunde': 1, 'powtorzenia': 5, 'przerwa': 10},
-        {'ilosc_piskow_na_sekunde': 2, 'powtorzenia': 5, 'przerwa': 8},
-        {'ilosc_piskow_na_sekunde': 2, 'powtorzenia': 8, 'przerwa': 8},
         {'ilosc_piskow_na_sekunde': 10, 'powtorzenia': 10, 'przerwa': 5},
     ]
 
