@@ -1,5 +1,6 @@
 import math
 import time
+import threading
 import sys
 
 class alarm_generator:
@@ -116,7 +117,7 @@ class run_alarm:
         self.old_time = 0
         self.bitrate = bitrate
 
-    def next_time(self):
+    def _is_time(self):
         if time.time() - self.old_time < 1 / self.bitrate:
             return False
         self.old_time = time.time()
@@ -127,10 +128,11 @@ class run_alarm:
         self.alarm = alarm
 
     def tick(self):
-        pass
+        print("tick")
 
     def run(self):
-        pass
+        if self._is_time():
+            self.tick()
 
 lista = alarm_generator()
 alarm = run_alarm(lista.bitrate)
