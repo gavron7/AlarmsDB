@@ -26,10 +26,17 @@ class alarm_generator:
         self.find_top_alarm()
 
     def find_top_alarm(self):
-        l = self.list
         self.list.sort(reverse=True)
-        if l != self.oldlist:
-            self.oldlist = l
+        try:
+            __old = self.oldlist[0]
+        except:
+            __old = []
+        try:
+            __new = self.list[0]
+        except:
+            __new = []
+        if __new != __old:
+            self.oldlist = self.list.copy()
             self.changed = True
 
     def is_changed(self):
@@ -106,6 +113,12 @@ class alarm_generator:
         a = self.generate()
         return a
 
+class run_alarm:
+    def __init__(self):
+        pass
+    def run(self):
+        pass
+
 lista = alarm_generator()
 lista.add(0)
 s = time.time()
@@ -117,6 +130,12 @@ while time.time() - s < 10:
         lista.remove(1)
         print("usunieto 1")
     if round(time.time() - s, 2) == 5.0:
+        print('dodano 0')
+        lista.add(0)
+    if round(time.time() - s, 2) == 7.0:
+        lista.remove(0)
+        print("usunieto 0")
+    if round(time.time() - s, 2) == 8.0:
         lista.remove(0)
         print("usunieto 0")
 
