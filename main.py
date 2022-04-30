@@ -16,41 +16,7 @@ class alarm_generator:
         self.oldlist = []
         self.changed = False
 
-    def add(self, pio):
-        if pio > len(self.piority):
-            pio = len(self.piority) - 1
-        elif pio < 0:
-            pio = 0
-        self.list.append(pio)
-        self.find_top_alarm()
-
-    def find_top_alarm(self):
-        self.list.sort(reverse=True)
-        try:
-            __old = self.oldlist[0]
-        except:
-            __old = []
-        try:
-            __new = self.list[0]
-        except:
-            __new = []
-        if __new != __old:
-            self.oldlist = self.list.copy()
-            self.changed = True
-
-    def is_changed(self):
-        a = self.changed
-        self.changed = False
-        return a
-
-    def remove(self, pio):
-        try:
-            self.list.remove(pio)
-        except:
-            pass
-        self.find_top_alarm()
-
-    def top(self):
+    def _top(self):
         try:
             return self.piority[self.list[0]]
         except:
@@ -75,7 +41,7 @@ class alarm_generator:
         # generowanie sekundy ciszy
         return "0" * self.bitrate
 
-    def gen_wait(self):
+    def _gen_wait(self):
         # generowanie sekundy pauzy
         return "w" * self.bitrate
 
@@ -87,7 +53,7 @@ class alarm_generator:
             _output += _sek_sin + _sek_sil
         if alarm['powtorzenia'] > 0 and alarm['przerwa_impuls'] > 0:
             _output = _output[:-len(_sek_sil)]
-        _output += self.gen_wait() * alarm['przerwa']
+        _output += self._gen_wait() * alarm['przerwa']
         return _output
 
     def _make_cut(self, alarm):
@@ -97,25 +63,77 @@ class alarm_generator:
             __tmp += alarm[i]
         return __tmp
 
-    def generate(self):
-        a = self._make_alarm(self.top())
+    def _generate(self):
+        a = self._make_alarm(self._top())
         self.old_a = a
         return a
 
+    def _find_top_alarm(self):
+        self.list.sort(reverse=True)
+        try:
+            __old = self.oldlist[0]
+        except:
+            __old = []
+        try:
+            __new = self.list[0]
+        except:
+            __new = []
+        if __new != __old:
+            self.oldlist = self.list.copy()
+            self.changed = True
+
+    def is_changed(self):
+        a = self.changed
+        self.changed = False
+        return a
+
+    def add(self, pio):
+        if pio > len(self.piority):
+            pio = len(self.piority) - 1
+        elif pio < 0:
+            pio = 0
+        self.list.append(pio)
+        self._find_top_alarm()
+
+    def remove(self, pio):
+        try:
+            self.list.remove(pio)
+        except:
+            pass
+        self._find_top_alarm()
+
     def run(self):
-        if not self.top():
+        if not self._top():
             self.old_a = "w"
             return self.old_a
-        a = self.generate()
+        a = self._generate()
         return a
 
 class run_alarm:
-    def __init__(self):
+    def __init__(self, bitrate):
+        self.pozycja = 0
+        self.alarm = "0"
+        self.old_time = 0
+        self.bitrate = bitrate
+
+    def next_time(self):
+        if time.time() - self.old_time < 1 / self.bitrate:
+            return False
+        self.old_time = time.time()
+        return True
+
+    def add(self, alarm):
+        self.pozycja = 0
+        self.alarm = alarm
+
+    def tick(self):
         pass
+
     def run(self):
         pass
 
 lista = alarm_generator()
+alarm = run_alarm(lista.bitrate)
 lista.add(0)
 s = time.time()
 while time.time() - s < 10:
