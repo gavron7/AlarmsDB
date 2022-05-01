@@ -1,3 +1,4 @@
+from telnetlib import Telnet as tn
 import math
 import time
 import threading
@@ -112,7 +113,8 @@ class alarm_generator:
         return a
 
 class run_alarm:
-    def __init__(self, bitrate):
+    def __init__(self, bitrate, telnet):
+        self.telnet = telnet
         self.pozycja = 0
         self.alarm = "0"
         self.old_time = 0
@@ -143,6 +145,7 @@ class run_alarm:
         self.pozycja += 1
         if self.pozycja >= len(self.alarm):
             self.pozycja = 0
+        self.telnet.tick(akt)
         # sys.stdout.write(akt)
 
     def __run_foreground(self):
@@ -151,8 +154,48 @@ class run_alarm:
                 self.__tick()
             time.sleep(1 / (self.bitrate*1000))
 
+class numato16:
+
+    def __init__(self, ip, login, password):
+        self.konfig = {
+            'ip': ip,
+            'login': login,
+            'password': password,
+        }
+        self.is_connected=False
+        self.tn = tn()
+        self.__connect()
+
+    def __connect(self):
+        if self.is_connected:
+            return
+        print("Łączenie z numato16... ", end="")
+        try:
+            self.tn.close()
+            self.tn.open(host=self.konfig['ip'], port=123, timeout=1)
+            self.is_connected = True
+            print("CONNECTED")
+        except TimeoutError:
+            self.tn.close()
+            self.is_connected = False
+            print("ERROR")
+        if self.is_connected:
+            self.__login()
+        sys.exit()
+
+    def __login(self):
+        print("LOGIN")
+        pass
+
+    def tick(self, value):
+        print("tick", value)
+
+
+
+
+telnet = numato16(ip='192.168.170.48', login='admin', password='Qwerty!2')
 lista = alarm_generator()
-alarm = run_alarm(lista.bitrate)
+alarm = run_alarm(lista.bitrate, telnet)
 alarm.start()
 lista.add(0)
 def stat():
@@ -160,7 +203,7 @@ def stat():
     print("AKTYWNY:", lista._top())
 stat()
 s = time.time()
-while time.time() - s < 15:
+while time.time() - s < 30:
     if round(time.time() - s, 2) == 1.0:
         lista.add(1)
         print(1,'dodano 1')
@@ -177,7 +220,7 @@ while time.time() - s < 15:
         lista.remove(0)
         print(4,"usunieto 0")
         stat()
-    if round(time.time() - s, 2) == 8.0:
+    if round(time.time() - s, 2) == 25.0:
         lista.remove(0)
         print(5,"usunieto 0")
         stat()
