@@ -119,12 +119,6 @@ class run_alarm:
         self.pid = False
         self.running = True
 
-    def _is_time(self):
-        if time.time() - self.old_time < 1 / self.bitrate:
-            return False
-        self.old_time = time.time()
-        return True
-
     def start(self):
         self.pid = threading.Thread(target=self.__run_foreground)
         self.pid.start()
@@ -137,19 +131,23 @@ class run_alarm:
         self.pozycja = 0
         self.alarm = alarm
 
-    def tick(self):
-        # print(self.pozycja)
+    def _is_time(self):
+        if time.time() - self.old_time < 1 / self.bitrate:
+            return False
+        self.old_time = time.time()
+        return True
+
+    def __tick(self):
         akt = self.alarm[self.pozycja]
         self.pozycja += 1
         if self.pozycja >= len(self.alarm):
             self.pozycja = 0
-        print(akt)
-        # print("tick")
+        sys.stdout.write(akt)
 
     def __run_foreground(self):
         while self.running:
             if self._is_time():
-                self.tick()
+                self.__tick()
             time.sleep(1 / (self.bitrate*1000))
 
 lista = alarm_generator()
@@ -157,7 +155,7 @@ alarm = run_alarm(lista.bitrate)
 alarm.start()
 lista.add(0)
 s = time.time()
-while time.time() - s < 12:
+while time.time() - s < 15:
     if round(time.time() - s, 2) == 1.0:
         lista.add(1)
         print(1,'dodano 1')
