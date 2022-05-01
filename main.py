@@ -8,7 +8,7 @@ import sys
 
 telnet = numato16(ip='192.168.170.48', login='admin', password='Qwerty!2')
 lista = alarm_generator()
-alarm = run_alarm(lista.bitrate, telnet)
+alarm = run_alarm(lista.bitrate, telnet, pin=1)
 alarm.start()
 lista.add(0)
 def stat():

@@ -4,7 +4,8 @@ import threading
 import sys
 
 class run_alarm:
-    def __init__(self, bitrate, telnet):
+    def __init__(self, bitrate, telnet, pin):
+        self.old_akt = None
         self.telnet = telnet
         self.pozycja = 0
         self.alarm = "0"
@@ -12,6 +13,7 @@ class run_alarm:
         self.bitrate = bitrate
         self.pid = False
         self.running = True
+        self.pin = pin
 
     def start(self):
         self.pid = threading.Thread(target=self.__run_foreground)
@@ -36,7 +38,11 @@ class run_alarm:
         self.pozycja += 1
         if self.pozycja >= len(self.alarm):
             self.pozycja = 0
-        self.telnet.tick(akt)
+        if akt == self.old_akt:
+            return
+        self.old_akt = akt
+
+        self.telnet.tick(akt, self.pin)
 
     def __run_foreground(self):
         while self.running:

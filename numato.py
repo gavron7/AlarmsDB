@@ -43,8 +43,8 @@ class numato16:
             self.__set_error("Brak połączenia z numato16. Ponawiam próbę połączenia.")
             print("ERROR")
         if self.is_connected:
-            self.__login()
-        sys.exit()
+            return self.__login()
+        return False
 
     def __read(self):
         return self.tn.read_very_eager().decode('utf-8')
@@ -92,5 +92,16 @@ class numato16:
     def get_error(self):
         return self.moderror
 
-    def tick(self, value):
-        print("tick", value)
+    def __gpio_set(self, gpio, value):
+        cmd = "gpio "
+        if value == "1":
+            cmd += "set"
+        else:
+            cmd += "clear"
+        cmd += " " + str(gpio) + "\r\n"
+        self.__write(cmd)
+        self.__readtill(">")
+
+    def tick(self, value, pin=1):
+        print("tick", value, pin)
+        self.__gpio_set(pin, value)
