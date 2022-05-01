@@ -6,8 +6,9 @@ import sys
 class alarm_generator:
 
     piority = [
-        {'ilosc_piskow_na_sekunde': 1, 'przerwa_impuls': 0, 'powtorzenia': 1, 'przerwa': 1},
-        {'ilosc_piskow_na_sekunde': 5, 'przerwa_impuls': 2, 'powtorzenia': 3, 'przerwa': 10},
+        {'ilosc_piskow_na_sekunde': 2, 'przerwa_impuls': 5, 'powtorzenia': 1, 'przerwa': 1},
+        {'ilosc_piskow_na_sekunde': 3, 'przerwa_impuls': 3, 'powtorzenia': 1, 'przerwa': 1},
+        {'ilosc_piskow_na_sekunde': 5, 'przerwa_impuls': 2, 'powtorzenia': 1, 'przerwa': 1},
     ]
     bitrate = 10 # Hz
 
@@ -17,7 +18,7 @@ class alarm_generator:
         self.oldlist = []
         self.changed = False
 
-    def __top(self):
+    def _top(self):
         try:
             return self.piority[self.list[0]]
         except:
@@ -65,7 +66,7 @@ class alarm_generator:
         return __tmp
 
     def __generate(self):
-        a = self.__make_alarm(self.__top())
+        a = self.__make_alarm(self._top())
         self.old_a = a
         return a
 
@@ -104,7 +105,7 @@ class alarm_generator:
         self.__find_top_alarm()
 
     def run(self):
-        if not self.__top():
+        if not self._top():
             self.old_a = "0"
             return self.old_a
         a = self.__generate()
@@ -142,7 +143,7 @@ class run_alarm:
         self.pozycja += 1
         if self.pozycja >= len(self.alarm):
             self.pozycja = 0
-        sys.stdout.write(akt)
+        # sys.stdout.write(akt)
 
     def __run_foreground(self):
         while self.running:
@@ -154,23 +155,32 @@ lista = alarm_generator()
 alarm = run_alarm(lista.bitrate)
 alarm.start()
 lista.add(0)
+def stat():
+    print("LISTA:", lista.list)
+    print("AKTYWNY:", lista._top())
+stat()
 s = time.time()
 while time.time() - s < 15:
     if round(time.time() - s, 2) == 1.0:
         lista.add(1)
         print(1,'dodano 1')
+        stat()
     if round(time.time() - s, 2) == 3.0:
         lista.remove(1)
         print(2,"usunieto 1")
+        stat()
     if round(time.time() - s, 2) == 5.0:
         print(3,'dodano 0')
         lista.add(0)
+        stat()
     if round(time.time() - s, 2) == 7.0:
         lista.remove(0)
         print(4,"usunieto 0")
+        stat()
     if round(time.time() - s, 2) == 8.0:
         lista.remove(0)
         print(5,"usunieto 0")
+        stat()
 
     x = lista.run()
     if lista.is_changed():
