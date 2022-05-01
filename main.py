@@ -17,27 +17,6 @@ def stat():
 stat()
 s = time.time()
 while time.time() - s < 30:
-    if round(time.time() - s, 2) == 1.0:
-        lista.add(1)
-        print(1,'dodano 1')
-        stat()
-    if round(time.time() - s, 2) == 3.0:
-        lista.remove(1)
-        print(2,"usunieto 1")
-        stat()
-    if round(time.time() - s, 2) == 5.0:
-        print(3,'dodano 0')
-        lista.add(0)
-        stat()
-    if round(time.time() - s, 2) == 7.0:
-        lista.remove(0)
-        print(4,"usunieto 0")
-        stat()
-    if round(time.time() - s, 2) == 25.0:
-        lista.remove(0)
-        print(5,"usunieto 0")
-        stat()
-
     x = lista.run()
     if lista.is_changed():
         print('zmiana',x)
