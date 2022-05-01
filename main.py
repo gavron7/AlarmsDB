@@ -17,13 +17,13 @@ class alarm_generator:
         self.oldlist = []
         self.changed = False
 
-    def _top(self):
+    def __top(self):
         try:
             return self.piority[self.list[0]]
         except:
             return False
 
-    def _gen_sinus(self, alarm, precyzja=10):
+    def __gen_sinus(self, alarm, precyzja=10):
         # generowanie sekundy sygnału o danej częstotliwości
         _output = ""
         piski = alarm['ilosc_piskow_na_sekunde']
@@ -38,38 +38,38 @@ class alarm_generator:
             _output += str(wynik)
         return _output
 
-    def _gen_silent(self):
+    def __gen_silent(self):
         # generowanie sekundy ciszy
         return "0" * self.bitrate
 
-    def _gen_wait(self):
+    def __gen_wait(self):
         # generowanie sekundy pauzy
         return "w" * self.bitrate
 
-    def _make_alarm(self, alarm):
-        _sek_sin = self._make_cut(self._gen_sinus(alarm))
-        _sek_sil = self._gen_silent() * alarm['przerwa_impuls']
+    def __make_alarm(self, alarm):
+        _sek_sin = self.__make_cut(self.__gen_sinus(alarm))
+        _sek_sil = self.__gen_silent() * alarm['przerwa_impuls']
         _output = ""
         for i in range(alarm['powtorzenia'] + 1):
             _output += _sek_sin + _sek_sil
         if alarm['powtorzenia'] > 0 and alarm['przerwa_impuls'] > 0:
             _output = _output[:-len(_sek_sil)]
-        _output += self._gen_wait() * alarm['przerwa']
+        _output += self.__gen_wait() * alarm['przerwa']
         return _output
 
-    def _make_cut(self, alarm):
+    def __make_cut(self, alarm):
         # ucinanie wyniku do x bitów
         __tmp = ""
         for i in range(1, len(alarm), int(len(alarm) / self.bitrate)):
             __tmp += alarm[i]
         return __tmp
 
-    def _generate(self):
-        a = self._make_alarm(self._top())
+    def __generate(self):
+        a = self.__make_alarm(self.__top())
         self.old_a = a
         return a
 
-    def _find_top_alarm(self):
+    def __find_top_alarm(self):
         self.list.sort(reverse=True)
         try:
             __old = self.oldlist[0]
@@ -94,20 +94,20 @@ class alarm_generator:
         elif pio < 0:
             pio = 0
         self.list.append(pio)
-        self._find_top_alarm()
+        self.__find_top_alarm()
 
     def remove(self, pio):
         try:
             self.list.remove(pio)
         except:
             pass
-        self._find_top_alarm()
+        self.__find_top_alarm()
 
     def run(self):
-        if not self._top():
-            self.old_a = "w"
+        if not self.__top():
+            self.old_a = "0"
             return self.old_a
-        a = self._generate()
+        a = self.__generate()
         return a
 
 class run_alarm:
@@ -116,6 +116,8 @@ class run_alarm:
         self.alarm = "0"
         self.old_time = 0
         self.bitrate = bitrate
+        self.pid = False
+        self.running = True
 
     def _is_time(self):
         if time.time() - self.old_time < 1 / self.bitrate:
@@ -123,40 +125,62 @@ class run_alarm:
         self.old_time = time.time()
         return True
 
+    def start(self):
+        self.pid = threading.Thread(target=self.__run_foreground)
+        self.pid.start()
+
+    def stop(self):
+        self.running = False
+        self.pid.join()
+
     def add(self, alarm):
         self.pozycja = 0
         self.alarm = alarm
 
     def tick(self):
-        print("tick")
+        # print(self.pozycja)
+        akt = self.alarm[self.pozycja]
+        self.pozycja += 1
+        if self.pozycja >= len(self.alarm):
+            self.pozycja = 0
+        print(akt)
+        # print("tick")
 
-    def run(self):
-        if self._is_time():
-            self.tick()
+    def __run_foreground(self):
+        while self.running:
+            if self._is_time():
+                self.tick()
+            time.sleep(1 / (self.bitrate*1000))
 
 lista = alarm_generator()
 alarm = run_alarm(lista.bitrate)
+alarm.start()
 lista.add(0)
 s = time.time()
-while time.time() - s < 10:
+while time.time() - s < 12:
     if round(time.time() - s, 2) == 1.0:
         lista.add(1)
-        print('dodano 1')
+        print(1,'dodano 1')
     if round(time.time() - s, 2) == 3.0:
         lista.remove(1)
-        print("usunieto 1")
+        print(2,"usunieto 1")
     if round(time.time() - s, 2) == 5.0:
-        print('dodano 0')
+        print(3,'dodano 0')
         lista.add(0)
     if round(time.time() - s, 2) == 7.0:
         lista.remove(0)
-        print("usunieto 0")
+        print(4,"usunieto 0")
     if round(time.time() - s, 2) == 8.0:
         lista.remove(0)
-        print("usunieto 0")
+        print(5,"usunieto 0")
 
     x = lista.run()
     if lista.is_changed():
-        print('zmiana')
+        print('zmiana',x)
+        alarm.add(x)
         # print(len(x), lista.is_changed())
     time.sleep(0.01)
+
+print("juz")
+print(lista.list)
+alarm.stop()
